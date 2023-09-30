@@ -4,19 +4,20 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    Rigidbody _rb;
+    private Rigidbody rb;
 
     [SerializeField] float speed = 15f;
-    [SerializeField] float jumpForce = 20f;
+    public float jumpForce = 20f;
 
-    [SerializeField] Transform groundCheck;
-    [SerializeField] LayerMask ground;
+    //[SerializeField] Transform groundCheck;
+    //[SerializeField] LayerMask groundLayer;
+    private bool canJump = true;
 
     
 
     private void Start()
     {
-        _rb = GetComponent<Rigidbody>();
+        rb = GetComponent<Rigidbody>();
     }
 
 
@@ -25,23 +26,32 @@ public class PlayerMovement : MonoBehaviour
         float h = Input.GetAxis("Horizontal") * speed * Time.fixedDeltaTime;
         float v = Input.GetAxis("Vertical") * speed * Time.fixedDeltaTime;
 
-        _rb.velocity = transform.TransformDirection(new Vector3(-h, _rb.velocity.y, -v));
+        rb.velocity = transform.TransformDirection(new Vector3(-h, rb.velocity.y, -v));
 
-        if (Input.GetButtonDown("Jump") && IsGrounded())
+        if (Input.GetKeyDown(KeyCode.Space) && canJump)
         {
-            Jump();
+            rb.AddForce(Vector3.up * jumpForce, ForceMode.Impulse);
+            canJump = false;
         }
 
-        void Jump()
-        {
-            _rb.velocity = new Vector3(_rb.velocity.x, jumpForce, _rb.velocity.z);
-        }
+       // void Jump()
+       // {
+           // rb.velocity = new Vector3(rb.velocity.x, jumpForce, rb.velocity.z);
+           
+       // }
     }
 
 
-    bool IsGrounded()
+    // bool IsGrounded()
+    //{
+    //    return Physics.CheckSphere(groundCheck.position, .1f, groundLayer);
+    //  }
+    private void OnCollisionEnter(Collision collision)
     {
-        return Physics.CheckSphere(groundCheck.position, .1f, ground);
+        if (collision.gameObject.CompareTag("Ground"))
+        {
+            canJump = true;
+        }
     }
 
 }
